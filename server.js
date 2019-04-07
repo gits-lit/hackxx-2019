@@ -196,9 +196,11 @@ const visionClient = new vision.ImageAnnotatorClient();
         .then(results => {
           const sentiment = results[0].documentSentiment;
 
-          console.log(`Text: ${text}`);
-          console.log(`Sentiment score: ${sentiment.score}`);
-          console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
+          io.emit('audio', {
+            filename: `audio/${fileName}.wav`,
+            content: transcription,
+            safety: sentiment.score
+          });
         })
         .catch(err => {
           console.error('ERROR:', err);

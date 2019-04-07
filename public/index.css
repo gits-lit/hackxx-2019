@@ -1,5 +1,14 @@
 #mapid {
-  height: 70vh;
+  position: absolute;
+  right: 0;
+  height: 100vh;
   width: 50vw;
-  float: right;
+}
+
+.left-side {
+  position: absolute;
+  height: 100vh;
+  width: 50vw;
+  z-index: 1000;
+  box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.4);
 }

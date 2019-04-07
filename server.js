@@ -49,17 +49,24 @@ const bucketName = 'sayfeword-hackxx'
  * @param {string} fileDestination The location to store the file
  */
  async function downloadAudio(bucketName,fileName,fileDestination) {
-
  	let options = {
  		destination: fileDestination
  	}
-
-
   await storage
  	  .bucket(bucketName)
  	  .file(fileName)
  	  .download(options);
  }
 
-let fileNameThing = 'pikachu.jpg'
-downloadAudio(bucketName, fileNameThing, fileNameThing);
+ /* Socket.io check listen */
+io.on('connection', (socket) => {
+  console.log(`${socket} is connected`);
+
+  // User requested latitude longitude, now provide information on the danger
+  socket.on('incident', (data) => {
+    console.log(data);
+  });
+});
+
+//let fileNameThing = 'pikachu.jpg';
+//downloadAudio(bucketName, fileNameThing, fileNameThing);

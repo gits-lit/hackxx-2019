@@ -29,6 +29,10 @@ let markers = [{
     }
 }];
 
+// Declare Socket
+socket = io();
+
 L.geoJSON(markers).addTo(mymap).on('click', function(e) {
-    console.log(e.latlng);
+    console.log('Gathering data on the incident located at' + e.latlng);
+    socket.emit('incident', e.latlng);
 });

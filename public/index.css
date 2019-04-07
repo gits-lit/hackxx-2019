@@ -67,7 +67,24 @@
   width: 50%;
   height: 50%;
   object-fit: contain;
-  margin: 2vh;
+  margin: 2vh 2vh 2vh 0;
+}
+
+#sound {
+  position: absolute !important;
+  right: 0 !important;
+  width: 50%;
+  margin: 0 2vh 0 2vh;
+  margin-top: 45%;
+  object-fit: contain;
+}
+
+#textbox {
+  position: absolute !important;
+  right: 0 !important;
+  width: 50%;
+  margin: 0 2vh 0 2vh;
+  margin-top: 60%;
 }
 
 .flashing-button {

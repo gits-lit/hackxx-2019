@@ -12,6 +12,9 @@ let markers = []
 // Declare Socket.io
 socket = io();
 
+let soundScore = -1;
+let pictureScore = -1;
+
 /* When the function receives a new series of maps, update all the markers */
 socket.on('map', (data) => {
   L.geoJSON(data).addTo(mymap).on('click', function(e) {
@@ -42,29 +45,98 @@ socket.on('profile', (data) => {
       '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>')
       .fadeIn("fast");
   });
-})
+  $("#danger").fadeOut('fast', function() {
+    $(this).html(
+      '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>')
+      .fadeIn("fast");
+  });
+});
 
 socket.on('picture', (data) => {
   let safety = data.safety;
+  if(soundScore != -1) {
+
+  }
   document.getElementById("image").src=data.filename;
   $("#photo").fadeOut('fast', function() {
     if(safety == 3 ) {
       $(this).html(
         '<i class="big red circle icon"></i> Picture shows signs of danger')
         .fadeIn("fast");
+        pictureScore = 3;
     }
     else if(safety == 2) {
       $(this).html(
         '<i class="big yellow circle icon"></i> Picture might show danger')
         .fadeIn("fast");
+        pictureScore = 2;
     }
     else {
       $(this).html(
         '<i class="big green circle icon"></i> Picture seems okay')
         .fadeIn("fast");
+        pictureScore = 1;
     }
   });
-})
+  if(soundScore != -1) {
+    overall();
+  }
+});
+
+socket.on('audio', (data) => {
+  let safety = data.safety;
+  document.getElementById("sound").src=data.filename;
+  $("#textbox").fadeOut('fast', function() {
+      $(this).html(
+        `<b class="info">Transcription</b> <br> ${data.content}`)
+        .fadeIn("fast");
+    });
+
+  $("#audio").fadeOut('fast', function() {
+    if(safety < 0.1 ) {
+      $(this).html(
+        '<i class="big red circle icon"></i> Audio shows signs of danger')
+        .fadeIn("fast");
+        soundScore = 3;
+    }
+    else if(safety <= 0) {
+      $(this).html(
+        '<i class="big yellow circle icon"></i> Audio might show danger')
+        .fadeIn("fast");
+        soundScore = 2;
+    }
+    else {
+      $(this).html(
+        '<i class="big green circle icon"></i> Audio seems okay')
+        .fadeIn("fast");
+        soundScore = 1;
+    }
+  });
+  if(pictureScore != -1) {
+    overall();
+  }
+});
+
+function overall() {
+  $("#danger").fadeOut('fast', function() {
+    let safety = soundScore + pictureScore;
+    if(safety >= 5 ) {
+      $(this).html(
+        '<i class="big red circle icon"></i> Person is likely in danger')
+        .fadeIn("fast");
+    }
+    else if(safety <= 2) {
+      $(this).html(
+        '<i class="big green circle icon"></i> Person seems okay')
+        .fadeIn("fast");
+    }
+    else {
+      $(this).html(
+        '<i class="big yellow circle icon"></i> Person might be in danger')
+        .fadeIn("fast");
+    }
+  });
+}
 
 /*
 let markers = [{

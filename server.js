@@ -11,6 +11,33 @@ const socket = require('socket.io');
 const http = require('http');
 const firebase = require("firebase");
 const vision = require('@google-cloud/vision');
+// Imports the Google Cloud client library
+const language = require('@google-cloud/language');
+
+// Instantiates a client
+const languageClient = new language.LanguageServiceClient();
+
+// The text to analyze
+const text = 'i am dying';
+
+const document = {
+  content: text,
+  type: 'PLAIN_TEXT',
+};
+
+// Detects the sentiment of the text
+languageClient
+  .analyzeSentiment({document: document})
+  .then(results => {
+    const sentiment = results[0].documentSentiment;
+
+    console.log(`Text: ${text}`);
+    console.log(`Sentiment score: ${sentiment.score}`);
+    console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
+  })
+  .catch(err => {
+    console.error('ERROR:', err);
+  });
 
 /***** Front End Setup *****/
 const app = express();
@@ -93,6 +120,7 @@ collection.get()
 /***** Cloud Storage *****/
 const storage = new gstorage.Storage();
 const pictureBucket = 'hackxx-pictures';
+const audioBucket = 'hackxx-audio';
 
 /***** Cloud Vision *****/
 const visionAnalyzer = new vision.ImageAnnotatorClient();
@@ -104,9 +132,13 @@ const visionAnalyzer = new vision.ImageAnnotatorClient();
  * @param {string} fileName The file to download
  * @param {string} fileDestination The location to store the file
  */
- async function downloadFile(bucketName,fileName, callback) {
+ async function downloadFile(bucketName,fileName, audio, callback) {
+   dest = 'pictures';
+  if(audio) {
+    dest = 'audio';
+  }
  	let options = {
- 		destination: `public/pictures/${fileName}`
+ 		destination: `public/${dest}/${fileName}`
  	}
   await storage
  	  .bucket(bucketName)
@@ -176,10 +208,15 @@ io.on('connection', (socket) => {
   socket.on('case', (data) => {
     console.log(data);
     socket.emit('profile', dataTable[data]);
-    let fileName = dataTable[data].filename;
-    downloadFile(pictureBucket, fileName, function() {
+    let photoFileName = dataTable[data].filename + '.png';
+    let audioFileName = dataTable[data].filename + '.mp3';
+    downloadFile(pictureBucket, photoFileName, false, function() {
       console.log('Done downloading pictures');
-      analyzeImage(fileName);
+      analyzeImage(photoFileName);
+    });
+    downloadFile(audioBucket, audioFileName, true, function() {
+      console.log('Done downloading audio');
+      //analyzeImage(fileName);
     });
   });
 });

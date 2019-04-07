@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- Running Gulp tools -->
+  <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+  <script src="semantic/dist/semantic.min.js"></script>
+
   <title>Sayfe Word</title>
 
   <!-- Personal CSS -->
@@ -19,6 +28,13 @@
 </head>
 
 <body>
+
+    <!-- Alternative button with semantic ui (negative)-->
+    <!-- if not in danger -->
+    <button class="positive fluid ui button">Sayfe!</button>
+    <!-- else -->
+    <button class="negative fluid ui button">In danger!</button>
+
   <div class="left-side">
     <div class="ui card">
       <div class="image">
@@ -40,6 +56,8 @@
         </a>
       </div>
     </div>
+    <!-- Makes flashing in danger button -->
+    <button type="submit" class="flashing-button">In danger!</button>
   </div>
 
   <!--<%= test %>-->

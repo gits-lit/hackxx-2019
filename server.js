@@ -7,10 +7,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const gstorage = require('@google-cloud/storage');
+const socket = require('socket.io');
+const http = require('http');
 
 /***** Front End Setup *****/
 const app = express();
-const port = 3000;
+
+// Socket.io is set to listen to port 3000, which should house the front-end
+const server = http.createServer(app);
+const io = socket.listen(server);
 
 app.use(bodyParser());
 app.use(cors());
@@ -26,7 +31,11 @@ app.get('/', function(request, response) {
   });
 });
 
-app.listen(port);
+/***** Listen to port *****/
+const port = process.env.PORT || 3000;
+server.listen(port, '0.0.0.0', () => {
+  console.log(`Listening on Port ${port}`);
+});
 
 /***** Cloud Storage *****/
 const storage = new gstorage.Storage();
@@ -52,4 +61,4 @@ const bucketName = 'sayfeword-hackxx'
  }
 
 let fileNameThing = 'pikachu.jpg'
- downloadAudio(bucketName, fileNameThing, fileNameThing);
+downloadAudio(bucketName, fileNameThing, fileNameThing);

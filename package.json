@@ -21,6 +21,7 @@
     "@google-cloud/storage": "^2.5.0",
     "cors": "^2.8.5",
     "ejs": "^2.6.1",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "http": "0.0.0"
   }
 }

@@ -13,8 +13,13 @@ const firebase = require("firebase");
 const vision = require('@google-cloud/vision');
 const language = require('@google-cloud/language');
 const ffmpeg = require('fluent-ffmpeg');
+const speech = require('@google-cloud/speech');
+const fs = require('fs');
 
-// Instantiates a client
+// Instantiates a speech client
+const speechClient = new speech.SpeechClient();
+
+// Instantiates a language client
 const languageClient = new language.LanguageServiceClient();
 
 // The text to analyze
@@ -199,9 +204,46 @@ const visionAnalyzer = new vision.ImageAnnotatorClient();
    *  Analyzes audio
    */
   function analyzeAudio(fileName) {
-    convertToWav(fileName, function() {
+      convertToWav(fileName, async function() {
+        let transcription = await convertToText(fileName);
+        console.log(transcription);
     });
   }
+
+  /**
+   * @function convertToText
+   *  Converts a Wav file to text
+   */
+  async function convertToText(fileName) {
+         // The name of the audio file to transcribe
+    let name = `public/audio/${fileName}.wav`;
+
+    // Reads a local audio file and converts it to base64
+    let file = fs.readFileSync(name);
+    let audioBytes = file.toString('base64');
+
+    // The audio file's encoding, sample rate in hertz, and BCP-47 language code
+    let audio = {
+      content: audioBytes,
+    };
+    let config = {
+      encoding: 'LINEAR16',
+      sampleRateHertz: 44100,
+      languageCode: 'en-US',
+    };
+    let request = {
+      audio: audio,
+      config: config,
+    };
+
+    // Detects speech in the audio file
+    let [response] = await speechClient.recognize(request);
+    const transcription = response.results
+      .map(result => result.alternatives[0].transcript)
+      .join('\n');
+    return transcription;
+  }
+
 
   /**
    * @function convertToWav

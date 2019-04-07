@@ -7,11 +7,31 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
     accessToken: 'your.mapbox.access.token'
 }).addTo(mymap);
 
+let markers = []
+
+// Declare Socket.io
+socket = io();
+
+/* When the function receives a new series of maps, update all the markers */
+socket.on('map', (data) => {
+  L.geoJSON(data).addTo(mymap).on('click', function(e) {
+    console.log(e);
+    socket.emit('case', e.layer.feature.properties.id);
+  });
+});
+
+/* When the function receives profile information, update the cards */
+socket.on('profile', (data) => {
+  console.log(data);
+})
+
+/*
 let markers = [{
     "type": "Feature",
     "properties": {
-        "name": "Coors Field",
-        "show_on_map": true
+      "id": 1590175,
+      "name": "Coors Field",
+      "show_on_map": true
     },
     "geometry": {
         "type": "Point",
@@ -20,19 +40,12 @@ let markers = [{
 }, {
     "type": "Feature",
     "properties": {
-        "name": "Busch Field",
-        "show_on_map": true
+      "id": 115185,
+      "name": "Busch Field",
+      "show_on_map": true
     },
     "geometry": {
         "type": "Point",
         "coordinates": [34.0522, -118.2437]
     }
-}];
-
-// Declare Socket
-socket = io();
-
-L.geoJSON(markers).addTo(mymap).on('click', function(e) {
-    console.log('Gathering data on the incident located at' + e.latlng);
-    socket.emit('incident', e.latlng);
-});
+}];*/

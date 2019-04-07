@@ -9,6 +9,7 @@ const path = require('path');
 const gstorage = require('@google-cloud/storage');
 const socket = require('socket.io');
 const http = require('http');
+const firebase = require("firebase");
 
 /***** Front End Setup *****/
 const app = express();
@@ -37,6 +38,57 @@ server.listen(port, '0.0.0.0', () => {
   console.log(`Listening on Port ${port}`);
 });
 
+/***** GeoJSON and JSON objects *****/
+let geoJson = []
+let dataTable = {}
+
+/**** Generate geoJson and json from Firebase *****/
+
+// Firebase setup
+const fb_config = {
+  apiKey: process.env.API_KEY || config.apiKey,
+  authDomain: process.env.AUTH_DOMAIN || config.authDomain,
+  databaseURL: process.env.DATABASE_URL || config.databaseURL,
+  projectId: process.env.PROJECT_ID || config.projectId,
+  storageBucket: process.env.STORAGE_BUCKET || config.storageBucket,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID || config.messagingSenderId
+}
+
+firebase.initializeApp(fb_config);
+const db = firebase.firestore();
+const collection = db.collection('cases');
+
+collection.get()
+.then(snapshot => {
+  if (snapshot.empty) {
+    console.log('No matching documents.');
+    return;
+  }
+
+  snapshot.forEach(doc => {
+    let dataObject = doc.data();
+    let geoJSONObject = {
+      "type": "Feature",
+      "properties": {
+        "id": doc.id
+      },
+      "geometry": {
+          "type": "Point",
+          "coordinates": [dataObject.lng, dataObject.lat]
+      }
+    }
+
+    geoJson.push(geoJSONObject);
+    dataTable[doc.id] = dataObject;
+    console.log('HERE IS THE GEOJSON');
+    console.log(geoJson);
+    console.log('HERE IS THE TABLE');
+    console.log(dataTable);
+  })
+});
+
+
+
 /***** Cloud Storage *****/
 const storage = new gstorage.Storage();
 const bucketName = 'sayfeword-hackxx'
@@ -61,10 +113,12 @@ const bucketName = 'sayfeword-hackxx'
  /* Socket.io check listen */
 io.on('connection', (socket) => {
   console.log(`${socket} is connected`);
+  socket.emit('map', geoJson);
 
   // User requested latitude longitude, now provide information on the danger
-  socket.on('incident', (data) => {
+  socket.on('case', (data) => {
     console.log(data);
+    socket.emit('profile', dataTable[data]);
   });
 });
 

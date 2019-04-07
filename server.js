@@ -22,28 +22,6 @@ const speechClient = new speech.SpeechClient();
 // Instantiates a language client
 const languageClient = new language.LanguageServiceClient();
 
-// The text to analyze
-const text = 'i am dying';
-
-const document = {
-  content: text,
-  type: 'PLAIN_TEXT',
-};
-
-// Detects the sentiment of the text
-languageClient
-  .analyzeSentiment({document: document})
-  .then(results => {
-    const sentiment = results[0].documentSentiment;
-
-    console.log(`Text: ${text}`);
-    console.log(`Sentiment score: ${sentiment.score}`);
-    console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
-  })
-  .catch(err => {
-    console.error('ERROR:', err);
-  });
-
 /***** Front End Setup *****/
 const app = express();
 
@@ -128,7 +106,7 @@ const pictureBucket = 'hackxx-pictures';
 const audioBucket = 'hackxx-audio';
 
 /***** Cloud Vision *****/
-const visionAnalyzer = new vision.ImageAnnotatorClient();
+const visionClient = new vision.ImageAnnotatorClient();
 
 /**
  * @function downloadFile
@@ -158,8 +136,8 @@ const visionAnalyzer = new vision.ImageAnnotatorClient();
    * @param {string} fileName The file to analyze
    */
   async function analyzeImage(fileName) {
-    let [mood] = await visionAnalyzer.faceDetection(`public/pictures/${fileName}`);
-    let [safety] = await visionAnalyzer.safeSearchDetection(`public/pictures/${fileName}`);
+    let [mood] = await visionClient.faceDetection(`public/pictures/${fileName}`);
+    let [safety] = await visionClient.safeSearchDetection(`public/pictures/${fileName}`);
     let feeling = mood.faceAnnotations;
     let violence = rankLikeliness(safety.safeSearchAnnotation.violence);
     let emotion = rankLikeliness(feeling.sorrowLikelihood) + rankLikeliness(feeling.angerLikelihood);
@@ -204,9 +182,27 @@ const visionAnalyzer = new vision.ImageAnnotatorClient();
    *  Analyzes audio
    */
   function analyzeAudio(fileName) {
-      convertToWav(fileName, async function() {
-        let transcription = await convertToText(fileName);
-        console.log(transcription);
+    convertToWav(fileName, async function() {
+      let transcription = await convertToText(fileName);
+
+      let document = {
+        content: transcription,
+        type: 'PLAIN_TEXT',
+      };
+
+      // Detects the sentiment of the text
+      await languageClient
+        .analyzeSentiment({document: document})
+        .then(results => {
+          const sentiment = results[0].documentSentiment;
+
+          console.log(`Text: ${text}`);
+          console.log(`Sentiment score: ${sentiment.score}`);
+          console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
+        })
+        .catch(err => {
+          console.error('ERROR:', err);
+        });
     });
   }
 

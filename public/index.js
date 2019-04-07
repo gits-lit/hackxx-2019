@@ -78,9 +78,6 @@ socket.on('picture', (data) => {
         pictureScore = 1;
     }
   });
-  if(soundScore != -1) {
-    overall();
-  }
 });
 
 socket.on('audio', (data) => {
@@ -112,31 +109,54 @@ socket.on('audio', (data) => {
         soundScore = 1;
     }
   });
-  if(pictureScore != -1) {
-    overall();
-  }
-});
 
-function overall() {
   $("#danger").fadeOut('fast', function() {
-    let safety = soundScore + pictureScore;
-    if(safety >= 5 ) {
+    if(data.content.includes('potato')) {
       $(this).html(
-        '<i class="big red circle icon"></i> Person is likely in danger')
-        .fadeIn("fast");
-    }
-    else if(safety <= 2) {
-      $(this).html(
-        '<i class="big green circle icon"></i> Person seems okay')
+        '<i class="big red circle icon"></i> Sayfe Word detected')
         .fadeIn("fast");
     }
     else {
       $(this).html(
-        '<i class="big yellow circle icon"></i> Person might be in danger')
+        '<i class="big green circle icon"></i>Sayfe Word not detected')
         .fadeIn("fast");
     }
   });
-}
+});
+
+var config = {
+  apiKey: "AIzaSyBHQPvrRZa5IGCutgUfQkyuz60BbqF2D04",
+  authDomain: "safeword-c0979.firebaseapp.com",
+  databaseURL: "https://safeword-c0979.firebaseio.com",
+  projectId: "safeword-c0979",
+  storageBucket: "safeword-c0979.appspot.com",
+  messagingSenderId: "824428448933"
+};
+firebase.initializeApp(config);
+
+const messaging = firebase.messaging();
+//messaging.usePublicVapidKey('BNb2c5LH81YZe-JBTikbz0CxbQeXrsXlya_Epirnq68mQiJwpxG0NQPQ7lVqZGr0mhGaLo4ILP0Jw66b9OP-8hY');
+
+messaging.requestPermission().then(function() {
+  console.log('Notification permission granted.');
+  // TODO(developer): Retrieve an Instance ID token for use with FCM.
+  // ...
+  return messaging.getToken();
+}).then(function(token){
+  console.log(token);
+}).catch(function(err) {
+  console.log('Unable to get permission to notify.', err);
+});
+// Handle incoming messages. Called when:
+// - a message is received while the app has focus
+// - the user clicks on an app notification created by a service worker
+//   `messaging.setBackgroundMessageHandler` handler.
+messaging.onMessage(function(payload) {
+  console.log('Message received. ' + payload.data.ok);
+  // ...
+  socket.emit('reload');
+});
+
 
 /*
 let markers = [{

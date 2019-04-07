@@ -69,35 +69,37 @@ firebase.initializeApp(fb_config);
 const db = firebase.firestore();
 const collection = db.collection('cases');
 
-collection.get()
-.then(snapshot => {
-  if (snapshot.empty) {
-    console.log('No matching documents.');
-    return;
-  }
-
-  snapshot.forEach(doc => {
-    let dataObject = doc.data();
-    let geoJSONObject = {
-      "type": "Feature",
-      "properties": {
-        "id": doc.id
-      },
-      "geometry": {
-          "type": "Point",
-          "coordinates": [dataObject.lng, dataObject.lat]
-      }
+function loadStuff() {
+  collection.get()
+  .then(snapshot => {
+    if (snapshot.empty) {
+      console.log('No matching documents.');
+      return;
     }
 
-    geoJson.push(geoJSONObject);
-    dataTable[doc.id] = dataObject;
-    console.log('HERE IS THE GEOJSON');
-    console.log(geoJson);
-    console.log('HERE IS THE TABLE');
-    console.log(dataTable);
-  })
-});
+    snapshot.forEach(doc => {
+      let dataObject = doc.data();
+      let geoJSONObject = {
+        "type": "Feature",
+        "properties": {
+          "id": doc.id
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [dataObject.lng, dataObject.lat]
+        }
+      }
 
+      geoJson.push(geoJSONObject);
+      dataTable[doc.id] = dataObject;
+      console.log('HERE IS THE GEOJSON');
+      console.log(geoJson);
+      console.log('HERE IS THE TABLE');
+      console.log(dataTable);
+    })
+  });
+}
+loadStuff();
 
 
 /***** Cloud Storage *****/
@@ -227,7 +229,7 @@ const visionClient = new vision.ImageAnnotatorClient();
     };
     let config = {
       encoding: 'LINEAR16',
-      sampleRateHertz: 44100,
+      sampleRateHertz: 12000,
       languageCode: 'en-US',
     };
     let request = {
@@ -249,7 +251,7 @@ const visionClient = new vision.ImageAnnotatorClient();
    *  Converts a file to wav format
    */
    function convertToWav(fileName, callback) {
-     let track = `public/audio/${fileName}.mp3`;//your path to source file
+     let track = `public/audio/${fileName}`;//your path to source file
 
      ffmpeg(track)
      .toFormat('wav')
@@ -269,7 +271,8 @@ const visionClient = new vision.ImageAnnotatorClient();
 
 
  /* Socket.io check listen */
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
+  await loadStuff();
   console.log(`${socket} is connected`);
   socket.emit('map', geoJson);
 
@@ -277,8 +280,8 @@ io.on('connection', (socket) => {
   socket.on('case', (data) => {
     console.log(data);
     socket.emit('profile', dataTable[data]);
-    let photoFileName = dataTable[data].filename + '.png';
-    let audioFileName = dataTable[data].filename + '.mp3';
+    let photoFileName = dataTable[data].filename + '.jpg';
+    let audioFileName = dataTable[data].filename;
     downloadFile(photoFileName, false, function() {
       console.log('Done downloading pictures');
       analyzeImage(photoFileName);
@@ -288,6 +291,11 @@ io.on('connection', (socket) => {
       analyzeAudio(dataTable[data].filename);
     });
   });
+
+  socket.on('reload', async () => {
+    await loadStuff();
+    socket.emit('maps', geoJSON);
+  })
 });
 
 //let fileNameThing = 'pikachu.jpg';

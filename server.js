@@ -101,9 +101,10 @@ collection.get()
 
 
 /***** Cloud Storage *****/
-const storage = new gstorage.Storage();
-const pictureBucket = 'hackxx-pictures';
-const audioBucket = 'hackxx-audio';
+const storage = new gstorage.Storage({
+      projectId: 'config.projectId',
+      keyFilename: 'firebasecred.json'
+    });
 
 /***** Cloud Vision *****/
 const visionClient = new vision.ImageAnnotatorClient();
@@ -115,8 +116,8 @@ const visionClient = new vision.ImageAnnotatorClient();
  * @param {string} fileName The file to download
  * @param {string} fileDestination The location to store the file
  */
- async function downloadFile(bucketName,fileName, audio, callback) {
-   dest = 'pictures';
+ async function downloadFile(fileName, audio, callback) {
+    dest = 'pictures';
   if(audio) {
     dest = 'audio';
   }
@@ -124,7 +125,7 @@ const visionClient = new vision.ImageAnnotatorClient();
  		destination: `public/${dest}/${fileName}`
  	}
   await storage
- 	  .bucket(bucketName)
+ 	  .bucket('gs://safeword-c0979.appspot.com')
  	  .file(fileName)
  	  .download(options);
   await callback();
@@ -278,11 +279,11 @@ io.on('connection', (socket) => {
     socket.emit('profile', dataTable[data]);
     let photoFileName = dataTable[data].filename + '.png';
     let audioFileName = dataTable[data].filename + '.mp3';
-    downloadFile(pictureBucket, photoFileName, false, function() {
+    downloadFile(photoFileName, false, function() {
       console.log('Done downloading pictures');
       analyzeImage(photoFileName);
     });
-    downloadFile(audioBucket, audioFileName, true, function() {
+    downloadFile(audioFileName, true, function() {
       console.log('Done downloading audio');
       analyzeAudio(dataTable[data].filename);
     });

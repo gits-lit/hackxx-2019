@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
   <title>Sayfe Word</title>
 
   <!-- Personal CSS -->
@@ -19,27 +20,28 @@
 </head>
 
 <body>
+
   <div class="left-side">
-    <div class="ui card">
-      <div class="image">
-        <img src="http://placekitten.com/200/300">
-      </div>
+    <div class="profile ui card">
       <div class="content">
-        <a class="header">Kristy</a>
-        <div class="meta">
-          <span class="date">Joined in 2013</span>
-        </div>
-        <div class="description">
-          Kristy is an art director living in New York.
-        </div>
-      </div>
-      <div class="extra content">
-        <a>
-          <i class="user icon"></i>
-          22 Friends
-        </a>
+        <div class="heading">Profile</div>
+        <div class="info"><b>name: </b><div class="inline" id="name"></div></div>
+        <div class="info"><b>phone: </b><div class="inline" id="phone"></div></div>
+        <div class="info"><b>address: </b><div class="inline" id="address"></div></div>
       </div>
     </div>
+    <div class="analysis ui card">
+      <div class="content" id="analysis">
+        <div class="heading">Analysis</div>
+        <div class="analys"><b class="info">Audio</b>><div class="ana" id="audio"><i class="big circle icon"></i>Audio analysis will show up here</div></div>
+        <div class="analys"><b class="info">Photo</b><div class="ana" id="photo"><i class="big circle icon"></i>Picture analysis will show up here</div></div>
+        <div class="analys"><b class="info">Overall</b><div class="ana" id="danger"><i class="big circle icon"></i>Overall analysis will show up here</div></div>
+      </div>
+      <img id="image">
+
+    </div>
+    <!-- Makes flashing in danger button -->
+    <!--<button type="submit" class="flashing-button">In danger!</button>-->
   </div>
 
   <!--<%= test %>-->

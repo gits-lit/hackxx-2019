@@ -10,6 +10,7 @@ const gstorage = require('@google-cloud/storage');
 const socket = require('socket.io');
 const http = require('http');
 const firebase = require("firebase");
+const vision = require('@google-cloud/vision');
 
 /***** Front End Setup *****/
 const app = express();
@@ -91,24 +92,80 @@ collection.get()
 
 /***** Cloud Storage *****/
 const storage = new gstorage.Storage();
-const bucketName = 'sayfeword-hackxx'
+const pictureBucket = 'hackxx-pictures';
+
+/***** Cloud Vision *****/
+const visionAnalyzer = new vision.ImageAnnotatorClient();
 
 /**
- * @function downloadAudio
- *   Downloads an audio file from a Google Cloud Storage bucket
+ * @function downloadFile
+ *   Downloads a file from a Google Cloud Storage bucket
  * @param {string} bucketName The name of the Cloud Storage bucket
  * @param {string} fileName The file to download
  * @param {string} fileDestination The location to store the file
  */
- async function downloadAudio(bucketName,fileName,fileDestination) {
+ async function downloadFile(bucketName,fileName, callback) {
  	let options = {
- 		destination: fileDestination
+ 		destination: `public/pictures/${fileName}`
  	}
   await storage
  	  .bucket(bucketName)
  	  .file(fileName)
  	  .download(options);
+  await callback();
  }
+
+ /**
+  * @function analyzeAudio
+  *   Analyzes audio
+  */
+
+  /**
+   * @function analyzeImage
+   *   Analyzes image for danger analysis
+   * @param {string} fileName The file to analyze
+   */
+  async function analyzeImage(fileName) {
+    let [mood] = await visionAnalyzer.faceDetection(`public/pictures/${fileName}`);
+    let [safety] = await visionAnalyzer.safeSearchDetection(`public/pictures/${fileName}`);
+    let feeling = mood.faceAnnotations;
+    let violence = rankLikeliness(safety.safeSearchAnnotation.violence);
+    let emotion = rankLikeliness(feeling.sorrowLikelihood) + rankLikeliness(feeling.angerLikelihood);
+    let safetyRanking = violence + emotion;
+    let safetyLevel = '';
+    if(safetyRanking >= 6) {
+      safetyLevel = 1;
+    }
+    else if (safetyRanking <= 2) {
+      safetyLevel = 3;
+    }
+    else {
+      safetyLevel = 2;
+    }
+    io.emit('picture', {
+      filename: `pictures/${fileName}`,
+      safety: safetyLevel
+    });
+  }
+
+  /**
+   * @function rankLikeliness
+   *   Converts likeliness to a number
+   * @param {string} likeliness A likeliness value to convert
+   * @return {number} A number
+   */
+  function rankLikeliness(likeliness) {
+    switch(likeliness) {
+      case 'VERY_LIKELY':
+        return 6;
+      case 'LIKELY':
+        return 4;
+      case 'POSSIBLE':
+        return 2;
+      default:
+        return 0
+    }
+  }
 
  /* Socket.io check listen */
 io.on('connection', (socket) => {
@@ -119,8 +176,14 @@ io.on('connection', (socket) => {
   socket.on('case', (data) => {
     console.log(data);
     socket.emit('profile', dataTable[data]);
+    let fileName = dataTable[data].filename;
+    downloadFile(pictureBucket, fileName, function() {
+      console.log('Done downloading pictures');
+      analyzeImage(fileName);
+    });
   });
 });
 
 //let fileNameThing = 'pikachu.jpg';
 //downloadAudio(bucketName, fileNameThing, fileNameThing);
+//analyzeImage('angryu.png');

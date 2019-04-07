@@ -23,6 +23,47 @@ socket.on('map', (data) => {
 /* When the function receives profile information, update the cards */
 socket.on('profile', (data) => {
   console.log(data);
+  $("#name").fadeOut('fast', function() {
+    $(this).html(data.name).fadeIn("fast");
+  });
+  $("#phone").fadeOut('fast', function() {
+    $(this).html(data.phone).fadeIn("fast");
+  });
+  $("#address").fadeOut('fast', function() {
+    $(this).html(data.address).fadeIn("fast");
+  });
+  $("#audio").fadeOut('fast', function() {
+    $(this).html(
+      '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>')
+      .fadeIn("fast");
+  });
+  $("#photo").fadeOut('fast', function() {
+    $(this).html(
+      '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>')
+      .fadeIn("fast");
+  });
+})
+
+socket.on('picture', (data) => {
+  let safety = data.safety;
+  document.getElementById("image").src=data.filename;
+  $("#photo").fadeOut('fast', function() {
+    if(safety == 3 ) {
+      $(this).html(
+        '<i class="big red circle icon"></i> Picture shows signs of danger')
+        .fadeIn("fast");
+    }
+    else if(safety == 2) {
+      $(this).html(
+        '<i class="big yellow circle icon"></i> Picture might show danger')
+        .fadeIn("fast");
+    }
+    else {
+      $(this).html(
+        '<i class="big green circle icon"></i> Picture seems okay')
+        .fadeIn("fast");
+    }
+  });
 })
 
 /*

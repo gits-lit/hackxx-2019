@@ -11,4 +11,167 @@
   width: 50vw;
   z-index: 1000;
   box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.4);
+  background: #247cc9;
+}
+
+.ui.card {
+  position: relative;
+  width: 80% !important;
+  margin: auto !important;
+  margin-top: 5vh !important;
+  box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.4) !important;
+}
+
+.heading {
+  margin-top: 1vh;
+  font-size: 2rem;
+}
+
+.info {
+  margin-top: 2vh !important;
+  font-size: 1.2rem;
+}
+
+.inline {
+  display: inline-block;
+}
+
+.profile {
+  height: 20vh;
+}
+
+.analysis {
+  height: 60vh;
+}
+
+.analys {
+  margin-top: 2vh;
+  height: 15vh;
+}
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+.yellow {
+  color: yellow;
+}
+
+#image {
+  position: absolute !important;
+  right: 0 !important;
+  width: 50%;
+  height: 50%;
+  object-fit: contain;
+  margin: 2vh;
+}
+
+.flashing-button {
+  z-index: 1000000;
+  background-color: #004A7F;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  border: none;
+  color: #FFFFFF;
+  display: inline-block;
+  font-family: Arial;
+  font-size: 20px;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  -webkit-animation: glowing 1500ms infinite;
+  -moz-animation: glowing 1500ms infinite;
+  -o-animation: glowing 1500ms infinite;
+  animation: glowing 1500ms infinite;
+}
+
+.ana {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@-webkit-keyframes glowing {
+  0% { background-color: #B20000; -webkit-box-shadow: 0 0 3px #B20000; }
+  50% { background-color: #FF0000; -webkit-box-shadow: 0 0 40px #FF0000; }
+  100% { background-color: #B20000; -webkit-box-shadow: 0 0 3px #B20000; }
+}
+
+@keyframes glowing {
+  0% { background-color: #B20000; -moz-box-shadow: 0 0 3px #B20000; }
+  50% { background-color: #FF0000; -moz-box-shadow: 0 0 40px #FF0000; }
+  100% { background-color: #B20000; -moz-box-shadow: 0 0 3px #B20000; }
+}
+
+@-o-keyframes glowing {
+  0% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
+  50% { background-color: #FF0000; box-shadow: 0 0 40px #FF0000; }
+  100% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
+}
+
+@keyframes glowing {
+  0% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
+  50% { background-color: #FF0000; box-shadow: 0 0 40px #FF0000; }
+  100% { background-color: #B20000; box-shadow: 0 0 3px #B20000; }
+}
+
+/** Loading **/
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 27px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #247cc9;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 6px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 6px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 26px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 45px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(19px, 0);
+  }
 }

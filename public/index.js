@@ -29,4 +29,6 @@ let markers = [{
     }
 }];
 
-L.geoJSON(markers).addTo(mymap);
+L.geoJSON(markers).addTo(mymap).on('click', function(e) {
+    console.log(e.latlng);
+});

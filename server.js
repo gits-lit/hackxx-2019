@@ -54,7 +54,8 @@ const bucketName = 'sayfeword-hackxx'
  		destination: fileDestination
  	}
 
- 	await storage
+
+  await storage
  	  .bucket(bucketName)
  	  .file(fileName)
  	  .download(options);

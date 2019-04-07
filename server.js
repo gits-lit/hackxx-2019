@@ -11,8 +11,8 @@ const socket = require('socket.io');
 const http = require('http');
 const firebase = require("firebase");
 const vision = require('@google-cloud/vision');
-// Imports the Google Cloud client library
 const language = require('@google-cloud/language');
+const ffmpeg = require('fluent-ffmpeg');
 
 // Instantiates a client
 const languageClient = new language.LanguageServiceClient();
@@ -147,11 +147,6 @@ const visionAnalyzer = new vision.ImageAnnotatorClient();
   await callback();
  }
 
- /**
-  * @function analyzeAudio
-  *   Analyzes audio
-  */
-
   /**
    * @function analyzeImage
    *   Analyzes image for danger analysis
@@ -199,6 +194,39 @@ const visionAnalyzer = new vision.ImageAnnotatorClient();
     }
   }
 
+  /**
+   * @function analyzeAudio
+   *  Analyzes audio
+   */
+  function analyzeAudio(fileName) {
+    convertToWav(fileName, function() {
+    });
+  }
+
+  /**
+   * @function convertToWav
+   *  Converts a file to wav format
+   */
+   function convertToWav(fileName, callback) {
+     let track = `public/audio/${fileName}.mp3`;//your path to source file
+
+     ffmpeg(track)
+     .toFormat('wav')
+     .on('error', (err) => {
+         console.log('An error occurred: ' + err.message);
+     })
+     .on('progress', (progress) => {
+         // console.log(JSON.stringify(progress));
+         console.log('Processing: ' + progress.targetSize + ' KB converted');
+     })
+     .on('end', () => {
+         console.log('Processing finished !');
+         callback();
+     })
+     .save(`public/audio/${fileName}.wav`);//path where you want to save your file
+   }
+
+
  /* Socket.io check listen */
 io.on('connection', (socket) => {
   console.log(`${socket} is connected`);
@@ -216,7 +244,7 @@ io.on('connection', (socket) => {
     });
     downloadFile(audioBucket, audioFileName, true, function() {
       console.log('Done downloading audio');
-      //analyzeImage(fileName);
+      analyzeAudio(dataTable[data].filename);
     });
   });
 });
